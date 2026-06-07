@@ -1,0 +1,55 @@
+name: Debug Build
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: List structure
+        run: |
+          echo "=== Structure ==="
+          ls -la
+          echo ""
+          echo "=== src/ directory ==="
+          ls -la src/
+          echo ""
+          echo "=== src/ejercicios/ directory ==="
+          ls -la src/ejercicios/
+          echo ""
+          echo "=== SUMMARY.md ==="
+          cat src/SUMMARY.md
+          echo ""
+          echo "=== book.toml ==="
+          cat book.toml
+
+      - name: Install mdBook
+        run: |
+          mkdir -p ~/mdbook
+          cd ~/mdbook
+          wget -q https://github.com/rust-lang/mdBook/releases/download/v0.4.37/mdbook-v0.4.37-x86_64-unknown-linux-gnu.tar.gz
+          tar xzf mdbook-v0.4.37-x86_64-unknown-linux-gnu.tar.gz
+          chmod +x mdbook
+          ~/mdbook/mdbook --version
+
+      - name: Validate files
+        run: |
+          echo "=== Checking file encoding ==="
+          file src/*.md
+          echo ""
+          echo "=== First 50 lines of 01-introduccion.md ==="
+          head -50 src/01-introduccion.md
+
+      - name: Build with verbose output
+        run: ~/mdbook/mdbook build -v
+
+      - name: Show build output
+        if: always()
+        run: |
+          echo "=== book directory ==="
+          ls -la book/ 2>/dev/null || echo "book/ does not exist"
