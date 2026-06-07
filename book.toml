@@ -1,0 +1,22 @@
+[book]
+title = "Algoritmos y Estructuras de Datos"
+author = "Departamento de Ciencias de la Computación - Universidad de Chile"
+description = "Apuntes del curso de Algoritmos y Estructuras de Datos en Python"
+language = "es"
+multilingual = false
+
+[build]
+build-dir = "book"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+playground.runnable = true
+search.enable = true
+
+[output.html.fold]
+enable = true
+level = 1
+
+[output.html.print]
+enable = true
