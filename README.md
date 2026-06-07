@@ -1,22 +1,40 @@
-# Algoritmos y Estructuras de Datos
+# Algoritmos y Estructuras de Datos - mdBook
 
-Este es el repositorio oficial del curso "Algoritmos y Estructuras de Datos" del [Departamento de Ciencias de la Computación](http://www.dcc.uchile.cl) de la [Universidad de Chile](http://www.uchile.cl).  El apunte está en lenguaje Python en formato Jupyter Notebook y está basado en los antiguos apuntes en Java de Patricio Poblete y Benjamín Bustos. Actualizaciones de Ivan Sipiran.
+📖 **Sitio web**: https://JR7juanito.github.io/AED
+
+Este es el repositorio con la página web interactiva del curso "Algoritmos y Estructuras de Datos" del [Departamento de Ciencias de la Computación](http://www.dcc.uchile.cl) de la [Universidad de Chile](http://www.uchile.cl). 
+
+El contenido está basado en el [repositorio oficial de Iván Sipirán](https://github.com/ivansipiran/AED-Apuntes) y ha sido convertido a **mdBook** para publicación en GitHub Pages.
+
+**Contenido**: Apuntes en Python en formato Jupyter Notebook, convertidos a Markdown para lectura web interactiva.
 
 ## Temario del Curso
-  1. Introducción [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/01_Introduccion.ipynb)
-      - Ejercicios [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/Ejercicios/01_Ejercicios.ipynb)
-  2. Métodos matemáticos para el análisis de algoritmos [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/02_Metodos_Matematicos_para_el_Analisis_de_Algoritmos.ipynb)
-      - Ejercicios [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/Ejercicios/02_Ejercicios.ipynb)
-  3. Diseño de algoritmos eficientes [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/03_Disen%CC%83o_de_Algoritmos_Eficientes.ipynb)
-      - Ejercicios [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/Ejercicios/03_Ejercicios.ipynb)
-  4. Estructuras de datos elementales [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/04_Estructuras_de_Datos_Elementales.ipynb)
-      - Ejercicios [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/Ejercicios/04_Ejercicios.ipynb)
-  5. Pilas, colas y colas de prioridad [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/05_Pilas_Colas_y_Colas_de_Prioridad.ipynb)
-      - Ejercicios [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/Ejercicios/05_Ejercicios.ipynb)
-  6. Diccionarios [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/06_Diccionarios.ipynb)
-      - Ejercicios [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/Ejercicios/06_Ejercicios.ipynb)
-  7. Ordenación [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/07_Ordenacion.ipynb)
-      - Ejercicios [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/Ejercicios/07_Ejercicios.ipynb)
-  8. Búsqueda en texto [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/08_Busqueda_en_Texto.ipynb)
-  9. Compresión de datos [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/09_Compresion_de_Datos.ipynb)
-  10. Grafos [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](http://colab.research.google.com/github/ivansipiran/AED-Apuntes/blob/main/10_Grafos.ipynb)
+
+### 📚 Temas principales
+  1. [Introducción](https://jr7juanito.github.io/AED/01-introduccion.html)
+  2. [Métodos matemáticos para el análisis de algoritmos](https://jr7juanito.github.io/AED/02-metodos-matematicos.html)
+  3. [Diseño de algoritmos eficientes](https://jr7juanito.github.io/AED/03-diseño-algoritmos.html)
+  4. [Estructuras de datos elementales](https://jr7juanito.github.io/AED/04-estructuras-datos.html)
+  5. [Pilas, colas y colas de prioridad](https://jr7juanito.github.io/AED/05-pilas-colas.html)
+  6. [Diccionarios](https://jr7juanito.github.io/AED/06-diccionarios.html)
+  7. [Ordenación](https://jr7juanito.github.io/AED/07-ordenacion.html)
+  8. [Búsqueda en texto](https://jr7juanito.github.io/AED/08-busqueda-texto.html)
+  9. [Compresión de datos](https://jr7juanito.github.io/AED/09-compresion-datos.html)
+  10. [Grafos](https://jr7juanito.github.io/AED/10-grafos.html)
+
+### 🏋️ Ejercicios prácticos
+- [Ejercicios de cada tema disponibles en la web](https://jr7juanito.github.io/AED/)
+
+## 🚀 Acceso rápido
+
+**📖 Leer en línea**: https://jr7juanito.github.io/AED
+
+**💻 Desarrollo local**:
+```bash
+mdbook serve
+```
+
+**🔧 Convertir notebooks**:
+```bash
+python convert_notebooks.py
+```
