@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aed-utilities-web"
+version = "0.1.0"
+description = "Visualizadores AED adaptados para JupyterLite + Pyodide"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [
+  { name = "JR7juanito" }
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Intended Audience :: Education",
+]
+
+[tool.setuptools.packages.find]
+include = ["aed_utilities*"]

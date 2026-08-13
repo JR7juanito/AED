@@ -16,6 +16,20 @@ import aed_utilities as aed
 
 Incluye versiones compatibles de `LinkedListDrawer`, `BinaryTreeDrawer`, `Tree23Drawer`, `GraphDrawer`, `NumpyArrayDrawer` y los `demo_*`.
 
+### Probar en JupyterLite público (REPL)
+
+Sí, lo puedes testear aquí: https://jupyterlite.github.io/demo/repl/index.html
+
+En una celda Python:
+
+```python
+import micropip
+await micropip.install("https://cdn.jsdelivr.net/gh/JR7juanito/AED@main/dist/aed_utilities_web-0.1.0-py3-none-any.whl")
+import aed_utilities as aed
+```
+
+Si eso corre sin error, quedó **público e importable**.
+
 **Contenido**: Apuntes en Python en formato Jupyter Notebook, convertidos a Markdown para lectura web interactiva.
 
 ## Temario del Curso

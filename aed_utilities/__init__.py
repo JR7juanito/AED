@@ -8,7 +8,10 @@ from .visualizacion import (
 )
 from .widgets import demo_abb, demo_abb_root, demo_arbol_23, demo_avl
 
+__version__ = "0.1.0"
+
 __all__ = [
+    "__version__",
     "SegmentationFault",
     "LinkedListDrawer",
     "BinaryTreeDrawer",
