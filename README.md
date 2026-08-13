@@ -24,11 +24,17 @@ En una celda Python:
 
 ```python
 import micropip
-await micropip.install("https://cdn.jsdelivr.net/gh/JR7juanito/AED@main/dist/aed_utilities_web-0.1.0-py3-none-any.whl")
+await micropip.install("https://raw.githubusercontent.com/JR7juanito/AED/37a7e8a/dist/aed_utilities_web-0.1.0-py3-none-any.whl")
 import aed_utilities as aed
 ```
 
 Si eso corre sin error, quedó **público e importable**.
+
+Validación rápida:
+
+```python
+aed.__version__
+```
 
 **Contenido**: Apuntes en Python en formato Jupyter Notebook, convertidos a Markdown para lectura web interactiva.
 
