@@ -1,37 +1,45 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Any, Iterable
 
 try:
-    from IPython.display import HTML, display
-except ModuleNotFoundError:  # pragma: no cover - entorno sin IPython
-    HTML = lambda x: x  # type: ignore
-
-    def display(obj):  # type: ignore
-        print(obj)
-
-try:
     import numpy as np
-except ModuleNotFoundError:  # pragma: no cover - entorno sin numpy
+except ModuleNotFoundError:  # pragma: no cover
     np = None
+
+from .adapters import (
+    array_1d_scene,
+    array_2d_scene,
+    binary_tree_scene,
+    graph_scene,
+    linked_list_scene,
+    tree23_scene,
+)
+from .display import show_svg, show_text
+from .layouts import (
+    fit_scene,
+    layout_binary_tree,
+    layout_circular,
+    layout_general_tree,
+    layout_grid,
+    layout_linear,
+)
+from .models import VisualEdge
+from .renderers import render_svg, render_text
 
 
 class SegmentationFault(Exception):
     pass
 
 
-def _render_pre(text: str):
-    safe = (
-        text.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-    )
-    display(HTML(f'<pre style="line-height:1.25em">{safe}</pre>'))
-
-
-def _render_html(html: str):
-    display(HTML(html))
+def _render_scene(scene, renderer: str = "svg"):
+    if renderer == "text":
+        text = render_text(scene)
+        show_text(text)
+        return text
+    svg = render_svg(scene)
+    show_svg(svg)
+    return svg
 
 
 class LinkedListDrawer:
@@ -42,38 +50,30 @@ class LinkedListDrawer:
         self.fieldData = kwargs.get("fieldData", "")
         self.fieldReverseLink = kwargs.get("fieldReverseLink", None)
         self.pointers = kwargs.get("pointers", {})
+        self.renderer = kwargs.get("renderer", "svg")
 
     def draw_linked_list(self, nList):
-        p = getattr(nList, self.fieldHeader)
-        nodes = []
-        seen = set()
-        while p is not None:
-            if id(p) in seen:
-                nodes.append("⟲")
-                break
-            seen.add(id(p))
-            nodes.append(str(getattr(p, self.fieldData)))
-            p = getattr(p, self.fieldLink)
-
-        if len(self.pointers) > 0 and max(self.pointers) > len(nodes):
-            raise SegmentationFault(
-                f"Tried to draw a pointer to node {max(self.pointers)}, but list length is {len(nodes)}."
-            )
-
-        head = f"{self.strHeader} → " if self.strHeader else ""
-        line = head + " → ".join(f"[{x}]" for x in nodes) + " → ∅"
-        if len(nodes) == 0:
-            line = head + "∅"
-
-        pointer_lines = []
-        for pos, label in sorted(self.pointers.items()):
-            if pos < len(nodes):
-                pointer_lines.append(f"{label} ↦ [{nodes[pos]}] (posición {pos})")
-            else:
-                pointer_lines.append(f"{label} ↦ ∅")
-
-        body = line if not pointer_lines else line + "\n" + "\n".join(pointer_lines)
-        _render_pre(body)
+        scene = linked_list_scene(
+            nList,
+            field_header=self.fieldHeader,
+            field_link=self.fieldLink,
+            field_data=self.fieldData,
+            str_header=self.strHeader,
+            pointers=self.pointers,
+        )
+        pointer_nodes = [n for n in scene.nodes if n.id.startswith("pointer_")]
+        layout_linear(scene)
+        if pointer_nodes:
+            data_nodes = [n for n in scene.nodes if n.id.startswith("node_")]
+            y_above = min((n.y for n in data_nodes), default=80) - 56
+            for p in pointer_nodes:
+                pos = int(p.id.split("_")[1])
+                target = scene.node_by_id(f"node_{pos}")
+                if target is not None:
+                    p.x = target.x
+                    p.y = y_above
+            fit_scene(scene)
+        _render_scene(scene, self.renderer)
 
     def ascending_list(self, nList):
         p = getattr(getattr(nList, self.fieldHeader), self.fieldLink)
@@ -88,16 +88,15 @@ class LinkedListDrawer:
             p = getattr(p, self.fieldReverseLink)
 
     def draw_double_linked_list(self, nList):
-        asc = " ⇄ ".join(str(x) for x in self.ascending_list(nList))
-        desc = " ⇄ ".join(str(x) for x in self.descending_list(nList))
-        _render_pre(f"Ascendente: {asc}\nDescendente: {desc}")
-
-
-@dataclass
-class _BinaryAsciiNode:
-    label: str
-    left: "_BinaryAsciiNode | None"
-    right: "_BinaryAsciiNode | None"
+        values = list(self.ascending_list(nList))
+        scene = array_1d_scene(values)
+        scene.title = "Lista Doblemente Enlazada"
+        for edge in scene.edges:
+            edge.directed = True
+        for i in range(1, len(values)):
+            scene.add_edge(VisualEdge(f"data_{i}", f"data_{i-1}", directed=True))
+        layout_linear(scene)
+        _render_scene(scene, self.renderer)
 
 
 class BinaryTreeDrawer:
@@ -109,6 +108,7 @@ class BinaryTreeDrawer:
         classNone=None,
         drawNull=False,
         shapeInternal="circle",
+        renderer="svg",
     ):
         self.nameInfo = fieldData
         self.nameLeft = fieldLeft
@@ -116,122 +116,107 @@ class BinaryTreeDrawer:
         self.classNone = classNone
         self.drawNull = drawNull
         self.shapeInternal = shapeInternal
-
-    def _is_empty(self, node: Any) -> bool:
-        if self.classNone is not None and isinstance(node, self.classNone):
-            return not hasattr(node, self.nameInfo)
-        return node is None
-
-    def _copy(self, node: Any):
-        if self._is_empty(node):
-            if self.drawNull:
-                return _BinaryAsciiNode("∅", None, None)
-            return None
-        return _BinaryAsciiNode(
-            str(getattr(node, self.nameInfo)),
-            self._copy(getattr(node, self.nameLeft)),
-            self._copy(getattr(node, self.nameRight)),
-        )
-
-    def _lines(self, node: _BinaryAsciiNode | None, prefix: str = "", is_left: bool = True):
-        if node is None:
-            return []
-        branch = "└── " if is_left else "┌── "
-        lines = [prefix + branch + node.label]
-        child_prefix = prefix + ("    " if is_left else "│   ")
-        lines.extend(self._lines(node.right, child_prefix, False))
-        lines.extend(self._lines(node.left, child_prefix, True))
-        return lines
+        self.renderer = renderer
 
     def draw_tree(self, tree, root):
-        node = self._copy(getattr(tree, root))
-        if node is None:
-            _render_pre("∅")
-            return
-        _render_pre("\n".join(self._lines(node)))
+        scene = binary_tree_scene(
+            tree,
+            root_field=root,
+            data_field=self.nameInfo,
+            left_field=self.nameLeft,
+            right_field=self.nameRight,
+            class_none=self.classNone,
+            draw_null=self.drawNull,
+        )
+        for node in scene.nodes:
+            if node.shape != "circle":
+                continue
+            node.shape = self.shapeInternal if self.shapeInternal in ("circle", "rect", "capsule") else "circle"
+        layout_binary_tree(scene, scene.metadata.get("root", ""))
+        _render_scene(scene, self.renderer)
 
 
 class GraphDrawer:
-    def __init__(self):
-        pass
+    def __init__(self, renderer="svg"):
+        self.renderer = renderer
 
     def draw_graph(self, graph):
-        connector = "→" if graph.dirigido else "—"
-        rows = []
-        for edge in graph.E:
-            if len(edge) == 2:
-                u, v = edge
-                rows.append(f"{u} {connector} {v}")
-            else:
-                u, v, w = edge
-                rows.append(f"{u} {connector} {v}  (peso={w})")
-        _render_pre("\n".join(rows) if rows else "(grafo vacío)")
+        scene = graph_scene(graph)
+        layout_circular(scene)
+        _render_scene(scene, self.renderer)
 
 
 class NumpyArrayDrawer:
-    def __init__(self, animation=False):
+    def __init__(self, animation=False, renderer="svg"):
         self.animation = animation
+        self.renderer = renderer
 
     def drawNumpy1DArray(self, array, showIndex=False, layout="row"):
         arr = np.asarray(array).tolist() if np is not None else list(array)
         if len(arr) > 0 and isinstance(arr[0], (list, tuple)):
             raise ValueError("drawNumpy1DArray espera un arreglo de una dimensión.")
-
+        scene = array_1d_scene(arr, show_index=showIndex)
         if layout == "column":
-            rows = []
-            for i, x in enumerate(arr):
-                if showIndex:
-                    rows.append(f"<tr><td>{i}</td><td>{x}</td></tr>")
-                else:
-                    rows.append(f"<tr><td>{x}</td></tr>")
-            html = (
-                '<table border="1" style="border-collapse:collapse;text-align:center;">'
-                + "".join(rows)
-                + "</table>"
-            )
+            data_nodes = [n for n in scene.nodes if n.id.startswith("data_")]
+            for node in data_nodes:
+                idx = int(node.id.split("_")[1])
+                node.x = 80
+                node.y = 70 + idx * 62
+            if showIndex:
+                for node in scene.nodes:
+                    if node.id.startswith("idx_"):
+                        idx = int(node.id.split("_")[1])
+                        node.x = 28
+                        node.y = 70 + idx * 62
+            fit_scene(scene)
         else:
-            data_row = "".join(f"<td>{x}</td>" for x in arr)
-            index_row = "".join(f"<td>{i}</td>" for i in range(len(arr)))
-            html = (
-                '<table border="1" style="border-collapse:collapse;text-align:center;">'
-                f"<tr>{data_row}</tr>"
-                + (f"<tr>{index_row}</tr>" if showIndex else "")
-                + "</table>"
-            )
+            layout_linear(scene, spacing=76)
+            if showIndex:
+                for node in scene.nodes:
+                    if node.id.startswith("idx_"):
+                        idx = int(node.id.split("_")[1])
+                        data_node = scene.node_by_id(f"data_{idx}")
+                        if data_node:
+                            node.x = data_node.x
+                            node.y = data_node.y + 36
+                fit_scene(scene)
 
+        rendered = _render_scene(scene, self.renderer)
         if self.animation:
-            return html
-        _render_html(html)
+            return rendered
         return None
 
     def drawNumpy2DArray(self, array, showIndex=False):
         arr = np.asarray(array).tolist() if np is not None else [list(row) for row in array]
         if len(arr) == 0:
-            _render_html('<table border="1" style="border-collapse:collapse;text-align:center;"></table>')
+            scene = array_2d_scene([], show_index=showIndex)
+            layout_grid(scene, cols=1)
+            rendered = _render_scene(scene, self.renderer)
+            if self.animation:
+                return rendered
             return None
         if not isinstance(arr[0], (list, tuple)):
             raise ValueError("drawNumpy2DArray espera un arreglo de dos dimensiones.")
 
-        rows = []
-        if showIndex:
-            top = "<tr><td></td>" + "".join(f"<td>{j}</td>" for j in range(len(arr[0]))) + "</tr>"
-            rows.append(top)
-
-        for i in range(len(arr)):
-            row_vals = "".join(f"<td>{arr[i][j]}</td>" for j in range(len(arr[i])))
-            if showIndex:
-                rows.append(f"<tr><td>{i}</td>{row_vals}</tr>")
-            else:
-                rows.append(f"<tr>{row_vals}</tr>")
-
-        html = (
-            '<table border="1" style="border-collapse:collapse;text-align:center;">'
-            + "".join(rows)
-            + "</table>"
-        )
+        scene = array_2d_scene(arr, show_index=showIndex)
+        cols = len(arr[0]) if arr else 1
+        for node in scene.nodes:
+            if node.id.startswith("cell_"):
+                _, i, j = node.id.split("_")
+                node.x = 70 + int(j) * 70
+                node.y = 70 + int(i) * 56
+            elif node.id.startswith("col_"):
+                j = int(node.id.split("_")[1])
+                node.x = 70 + j * 70
+                node.y = 28
+            elif node.id.startswith("row_"):
+                i = int(node.id.split("_")[1])
+                node.x = 26
+                node.y = 70 + i * 56
+        fit_scene(scene)
+        rendered = _render_scene(scene, self.renderer)
         if self.animation:
-            return html
-        _render_html(html)
+            return rendered
         return None
 
 
@@ -247,6 +232,7 @@ class Tree23Drawer:
         shape2="circle",
         shape3="Mrecord",
         drawEmpty=False,
+        renderer="svg",
     ):
         self.classNode2 = classNode2
         self.classNode3 = classNode3
@@ -257,6 +243,7 @@ class Tree23Drawer:
         self.shape2 = shape2
         self.shape3 = shape3
         self.drawEmpty = drawEmpty
+        self.renderer = renderer
 
     def _label(self, node):
         if isinstance(node, self.classEmpty):
@@ -278,19 +265,16 @@ class Tree23Drawer:
             ]
         return []
 
-    def _draw(self, node, prefix="", tail=True):
-        if isinstance(node, self.classEmpty) and not self.drawEmpty:
-            return []
-        lines = [f"{prefix}{'└── ' if tail else '├── '}{self._label(node)}"]
-        children = [c for c in self._children(node) if not isinstance(c, self.classEmpty) or self.drawEmpty]
-        for i, child in enumerate(children):
-            nxt = prefix + ("    " if tail else "│   ")
-            lines.extend(self._draw(child, nxt, i == len(children) - 1))
-        return lines
-
     def draw_tree(self, tree):
-        root = getattr(tree, self.fieldRoot)
-        if isinstance(root, self.classEmpty) and not self.drawEmpty:
-            _render_pre("∅")
-            return
-        _render_pre("\n".join(self._draw(root)))
+        scene = tree23_scene(
+            tree,
+            class_node2=self.classNode2,
+            class_node3=self.classNode3,
+            class_empty=self.classEmpty,
+            fields2=self.fields2,
+            fields3=self.fields3,
+            field_root=self.fieldRoot,
+            draw_empty=self.drawEmpty,
+        )
+        layout_general_tree(scene, scene.metadata.get("root", ""))
+        _render_scene(scene, self.renderer)
