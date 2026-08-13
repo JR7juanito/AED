@@ -6,6 +6,16 @@ Este es el repositorio con la página web interactiva del curso "Algoritmos y Es
 
 El contenido está basado en el [repositorio oficial de Iván Sipirán](https://github.com/ivansipiran/AED-Apuntes) y ha sido convertido a **mdBook** para publicación en GitHub Pages.
 
+## Utilidades para JupyterLite + Pyodide
+
+Se agregó un módulo local `aed_utilities/` para usar en entornos web sin instalación por `pip`.
+
+```python
+import aed_utilities as aed
+```
+
+Incluye versiones compatibles de `LinkedListDrawer`, `BinaryTreeDrawer`, `Tree23Drawer`, `GraphDrawer`, `NumpyArrayDrawer` y los `demo_*`.
+
 **Contenido**: Apuntes en Python en formato Jupyter Notebook, convertidos a Markdown para lectura web interactiva.
 
 ## Temario del Curso
